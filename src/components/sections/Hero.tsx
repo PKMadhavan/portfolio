@@ -1,212 +1,197 @@
 "use client";
 
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import dynamic from "next/dynamic";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { FileText, ArrowDown, Mail } from "lucide-react";
 import { GitHubIcon } from "@/components/icons";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG, MARQUEE_SKILLS } from "@/lib/constants";
+import { useTypewriter } from "@/hooks/useTypewriter";
 
-const NAME_WORDS = SITE_CONFIG.name.split(" ");
+const HeroScene = dynamic(
+  () => import("@/components/HeroScene").then((m) => m.HeroScene),
+  { ssr: false }
+);
+
+const ROLES = [
+  "AI Engineer",
+  "Full-Stack Developer",
+  "ML Systems Builder",
+  "RAG Architect",
+  "Open Source Contributor",
+];
+
+function MarqueeRow() {
+  const items = [...MARQUEE_SKILLS, ...MARQUEE_SKILLS];
+  return (
+    <div className="overflow-hidden border-y border-white/5 py-3 bg-black/10">
+      <div className="marquee-track">
+        {items.map((s, i) => (
+          <span key={i} className="font-mono text-xs tracking-widest uppercase text-foreground/25 px-6 shrink-0">
+            {s}<span className="ml-5 text-foreground/10">✦</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function Hero() {
-  const shouldReduceMotion = useReducedMotion();
-
-  const containerVariants: Variants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.1,
-        delayChildren: shouldReduceMotion ? 0 : 0.4,
-      },
-    },
-  };
-
-  const wordVariants: Variants = {
-    hidden: shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 60, skewY: 4 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      skewY: 0,
-      transition: { duration: 0.7, ease: "easeOut" },
-    },
-  };
-
-  const fadeUp: Variants = {
-    hidden: shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 24 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut" },
-    },
-  };
+  const shouldReduce = useReducedMotion();
+  const role = useTypewriter(ROLES, 65, 1600);
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 600], [0, shouldReduce ? 0 : 120]);
+  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6"
-    >
-      {/* Speed lines */}
-      <div className="speed-lines" aria-hidden />
+    <section id="hero" className="relative min-h-screen flex flex-col overflow-hidden">
+      {/* 3D canvas background */}
+      <div className="absolute inset-0 z-0">
+        <HeroScene />
+      </div>
 
-      {/* Gradient orbs — red/orange F1 palette */}
+      {/* Radial gradient overlay */}
       <div
         aria-hidden
-        className="gradient-orb w-[500px] h-[500px] top-0 -left-40 opacity-30"
-        style={{ background: "radial-gradient(circle, #e10600 0%, transparent 70%)" }}
-      />
-      <div
-        aria-hidden
-        className="gradient-orb w-96 h-96 bottom-0 -right-20 opacity-25"
-        style={{ background: "radial-gradient(circle, #ff8000 0%, transparent 70%)" }}
-      />
-      <div
-        aria-hidden
-        className="gradient-orb w-64 h-64 top-1/3 left-1/2 -translate-x-1/2 opacity-15"
-        style={{ background: "radial-gradient(circle, #ffcc00 0%, transparent 70%)" }}
+        className="absolute inset-0 z-[1]"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 40%, transparent 0%, var(--background) 80%)",
+        }}
       />
 
-      {/* Vertical racing stripes */}
-      <div
-        aria-hidden
-        className="racing-stripe h-2/3 top-1/6 left-[12%] opacity-30"
-      />
-      <div
-        aria-hidden
-        className="racing-stripe h-1/2 top-1/4 right-[12%] opacity-20"
-        style={{ background: "linear-gradient(to bottom, transparent, #ff8000 30%, #ffcc00 70%, transparent)" }}
-      />
-
-      <div className="relative z-10 max-w-4xl mx-auto text-center">
-        {/* Role badge */}
+      {/* Content */}
+      <motion.div
+        style={{ y, opacity }}
+        className="relative z-10 flex-1 flex flex-col justify-center max-w-[1280px] mx-auto px-8 w-full pt-24 pb-8"
+      >
+        {/* Available badge */}
         <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          transition={{ delay: shouldReduceMotion ? 0 : 0.1 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-sm border border-[#e10600]/40 bg-[#e10600]/10 text-[#e10600] text-xs font-mono font-bold uppercase tracking-widest mb-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.6 }}
+          className="flex items-center gap-2 mb-6"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#e10600] animate-pulse" />
-          {SITE_CONFIG.role}
+          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          <span className="font-mono text-xs tracking-widest uppercase text-foreground/50">
+            Open to Opportunities
+          </span>
         </motion.div>
 
-        {/* Animated name */}
+        {/* Name */}
         <motion.h1
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="font-heading text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-none tracking-tight mb-6 overflow-hidden"
+          initial={shouldReduce ? { opacity: 0 } : { opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="font-heading text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] leading-none tracking-tight mb-4"
         >
-          {NAME_WORDS.map((word, i) => (
-            <motion.span
-              key={i}
-              variants={wordVariants}
-              style={{ display: "inline-block" }}
-              className="mr-5 last:mr-0"
-            >
-              {i === NAME_WORDS.length - 1 ? (
-                <span className="gradient-text">{word}</span>
-              ) : (
-                <span className="text-white">{word}</span>
-              )}
-            </motion.span>
-          ))}
+          {SITE_CONFIG.name.split(" ")[0]}{" "}
+          <span className="gradient-text">{SITE_CONFIG.name.split(" ")[1]}</span>
         </motion.h1>
 
-        {/* Red stripe bar */}
+        {/* Typewriter role */}
         <motion.div
-          initial={{ scaleX: 0, opacity: 0 }}
-          animate={{ scaleX: 1, opacity: 1 }}
-          transition={{ delay: shouldReduceMotion ? 0 : 0.85, duration: 0.6, ease: "easeOut" }}
-          className="stripe-bar max-w-xs mx-auto mb-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="flex items-center gap-1 mb-6 h-8"
+        >
+          <span className="font-mono text-lg text-foreground/60">{role}</span>
+          <span className="typewriter-cursor" aria-hidden />
+        </motion.div>
+
+        {/* Stripe bar */}
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ delay: 0.7, duration: 0.7, ease: "easeOut" }}
+          className="stripe-bar w-32 mb-8"
           style={{ transformOrigin: "left" }}
         />
 
         {/* Bio */}
         <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          transition={{ delay: shouldReduceMotion ? 0 : 0.9 }}
-          className="text-[#9ca3af] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.85, duration: 0.6 }}
+          className="text-foreground/55 text-lg max-w-xl leading-relaxed mb-10"
         >
           {SITE_CONFIG.bio}
         </motion.p>
 
-        {/* CTA buttons */}
+        {/* CTAs */}
         <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          transition={{ delay: shouldReduceMotion ? 0 : 1.1 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.5 }}
+          className="flex flex-wrap gap-4"
         >
           <a
             href={SITE_CONFIG.resumeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-f1 flex items-center gap-2 px-7 py-3.5 rounded-sm font-mono text-sm font-bold uppercase tracking-wide"
+            data-magnetic
+            className="btn-primary flex items-center gap-2 px-7 py-3.5 rounded-lg font-mono text-sm font-bold uppercase tracking-wide"
           >
-            <FileText size={16} />
+            <FileText size={15} />
             View Resume
           </a>
           <a
             href={`https://github.com/${SITE_CONFIG.github}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-7 py-3.5 rounded-sm border border-white/20 bg-white/5 text-white font-mono text-sm font-bold uppercase tracking-wide hover:bg-white/10 hover:border-white/40 transition-colors"
+            data-magnetic
+            className="glass flex items-center gap-2 px-7 py-3.5 rounded-lg font-mono text-sm font-bold uppercase tracking-wide hover:text-white transition-colors"
           >
-            <GitHubIcon style={{ width: 16, height: 16 }} />
+            <GitHubIcon style={{ width: 15, height: 15 }} />
             GitHub
           </a>
           <a
             href="#contact"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="flex items-center gap-2 px-7 py-3.5 rounded-sm border border-[#ff8000]/40 bg-[#ff8000]/10 text-[#ff8000] font-mono text-sm font-bold uppercase tracking-wide hover:bg-[#ff8000]/20 hover:border-[#ff8000]/60 transition-colors"
+            onClick={(e) => { e.preventDefault(); document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); }}
+            data-magnetic
+            className="glass flex items-center gap-2 px-7 py-3.5 rounded-lg font-mono text-sm font-bold uppercase tracking-wide text-[#ff8000] border-[#ff8000]/30 hover:border-[#ff8000]/60 transition-colors"
           >
-            <Mail size={16} />
+            <Mail size={15} />
             Contact
           </a>
         </motion.div>
 
-        {/* Stats row */}
+        {/* Stats */}
         <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          transition={{ delay: shouldReduceMotion ? 0 : 1.3 }}
-          className="flex items-center justify-center gap-8 mt-14 pt-8 border-t border-white/10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.5 }}
+          className="flex flex-wrap gap-10 mt-14 pt-8 border-t border-white/5"
         >
           {[
-            { value: "AI", label: "Engineer" },
-            { value: "MS", label: "Grad Student" },
-            { value: "OSS", label: "Contributor" },
-          ].map(({ value, label }) => (
-            <div key={label} className="text-center">
-              <p className="font-heading text-3xl gradient-text">{value}</p>
-              <p className="text-xs font-mono text-[#9ca3af] uppercase tracking-widest mt-1">{label}</p>
+            { v: "AI/ML", l: "Specialization" },
+            { v: "M.S.", l: "Graduate" },
+            { v: "2026", l: "Class Of" },
+          ].map(({ v, l }) => (
+            <div key={l} className="text-center">
+              <p className="font-heading text-3xl gradient-text">{v}</p>
+              <p className="font-mono text-[10px] tracking-widest uppercase text-foreground/35 mt-1">{l}</p>
             </div>
           ))}
         </motion.div>
+      </motion.div>
+
+      {/* Marquee */}
+      <div className="relative z-10">
+        <MarqueeRow />
       </div>
 
       {/* Scroll arrow */}
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: shouldReduceMotion ? 0 : 1.6 }}
+        transition={{ delay: 1.5 }}
         onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-[#9ca3af] hover:text-[#e10600] transition-colors"
-        aria-label="Scroll to about section"
+        className="scroll-indicator absolute bottom-20 left-1/2 z-10 flex flex-col items-center gap-1 text-foreground/30 hover:text-[#e10600] transition-colors"
+        aria-label="Scroll down"
       >
-        <span className="text-xs font-mono uppercase tracking-widest">scroll</span>
-        <motion.div
-          animate={shouldReduceMotion ? {} : { y: [0, 7, 0] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ArrowDown size={18} />
-        </motion.div>
+        <span className="font-mono text-[10px] tracking-widest uppercase">scroll</span>
+        <ArrowDown size={16} />
       </motion.button>
     </section>
   );

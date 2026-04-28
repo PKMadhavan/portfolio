@@ -65,3 +65,9 @@ export const SOCIAL_LINKS = [
     icon: "mail",
   },
 ] as const;
+
+export const MARQUEE_SKILLS = [
+  "Python", "TypeScript", "React", "Next.js", "LangChain", "LlamaIndex",
+  "RAG", "PyTorch", "FastAPI", "PostgreSQL", "Docker", "AWS", "Vercel",
+  "OpenAI", "Hugging Face", "Framer Motion", "Three.js", "Redis",
+] as const;

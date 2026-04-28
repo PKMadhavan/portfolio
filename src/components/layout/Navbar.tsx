@@ -15,72 +15,55 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const activeSection = useActiveSection(SECTION_IDS);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduce = useReducedMotion();
 
   useEffect(() => { setMounted(true); }, []);
-
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const fn = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const handleNavClick = (href: string) => {
+  const scrollTo = (href: string) => {
     setMobileOpen(false);
-    const el = document.getElementById(href.replace("#", ""));
-    if (el) el.scrollIntoView({ behavior: shouldReduceMotion ? "auto" : "smooth" });
+    document.getElementById(href.replace("#", ""))?.scrollIntoView({ behavior: shouldReduce ? "auto" : "smooth" });
   };
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-[#15151e]/90 backdrop-blur-md border-b border-white/10 shadow-xl shadow-black/40"
-          : "bg-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled ? "glass shadow-lg shadow-black/20 border-b border-white/5" : "bg-transparent"
       }`}
     >
-      {/* F1 red top stripe */}
-      <div className="stripe-bar w-full" style={{ height: 2 }} />
-
+      <div className="stripe-bar w-full opacity-80" />
       <nav className="max-w-[1280px] mx-auto px-6 h-14 flex items-center justify-between">
         {/* Logo */}
-        <a
-          href="#hero"
-          onClick={(e) => { e.preventDefault(); handleNavClick("#hero"); }}
-          className="flex items-center gap-2"
+        <button
+          onClick={() => scrollTo("#hero")}
+          className="font-heading text-xl text-foreground hover:text-[#e10600] transition-colors duration-300"
         >
-          <span className="w-3 h-3 rounded-sm bg-[#e10600]" aria-hidden />
-          <span className="font-heading text-lg text-white hover:text-[#e10600] transition-colors">
-            {SITE_CONFIG.name.split(" ")[0]}
-            <span className="text-[#e10600]">.</span>
-          </span>
-        </a>
+          {SITE_CONFIG.name.split(" ")[0]}
+          <span className="text-[#e10600]">.</span>
+        </button>
 
-        {/* Desktop nav */}
+        {/* Desktop links */}
         <ul className="hidden md:flex items-center gap-0.5">
           {NAV_LINKS.map((link) => {
-            const isActive = activeSection === link.href.replace("#", "");
+            const active = activeSection === link.href.replace("#", "");
             return (
               <li key={link.href} className="relative">
                 <button
-                  onClick={() => handleNavClick(link.href)}
+                  onClick={() => scrollTo(link.href)}
                   className={`relative px-4 py-2 text-xs font-mono font-bold uppercase tracking-widest transition-colors ${
-                    isActive ? "text-white" : "text-[#9ca3af] hover:text-white"
+                    active ? "text-foreground" : "text-foreground/45 hover:text-foreground"
                   }`}
                 >
                   {link.label}
-                  {isActive && (
+                  {active && (
                     <motion.span
-                      layoutId="nav-underline"
-                      className="absolute bottom-0 left-0 right-0 h-0.5"
-                      style={{
-                        background: "linear-gradient(to right, #e10600, #ff8000)",
-                      }}
-                      transition={
-                        shouldReduceMotion
-                          ? { duration: 0 }
-                          : { type: "spring", stiffness: 380, damping: 30 }
-                      }
+                      layoutId="nav-active"
+                      className="absolute bottom-0 left-2 right-2 h-px bg-gradient-to-r from-[#e10600] to-[#ff8000]"
+                      transition={shouldReduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 30 }}
                     />
                   )}
                 </button>
@@ -89,22 +72,31 @@ export function Navbar() {
           })}
         </ul>
 
-        {/* Right controls */}
-        <div className="flex items-center gap-2">
+        {/* Right: theme + hamburger */}
+        <div className="flex items-center gap-1">
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-sm text-[#9ca3af] hover:text-white hover:bg-white/10 transition-colors"
+              data-magnetic
+              className="relative p-2 rounded-lg text-foreground/50 hover:text-foreground transition-colors overflow-hidden group"
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+              <span className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors rounded-lg" />
+              <motion.div
+                key={theme}
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+              </motion.div>
             </button>
           )}
           <button
-            className="md:hidden p-2 rounded-sm text-[#9ca3af] hover:text-white hover:bg-white/10 transition-colors"
+            className="md:hidden p-2 rounded-lg text-foreground/50 hover:text-foreground transition-colors"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -115,24 +107,23 @@ export function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            key="mobile-menu"
-            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: -8 }}
+            initial={shouldReduce ? { opacity: 0 } : { opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-            className="md:hidden bg-[#1f1f2e]/95 backdrop-blur-md border-b border-white/10"
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden glass border-b border-white/5"
           >
             <ul className="flex flex-col px-6 py-3 gap-0.5">
               {NAV_LINKS.map((link) => {
-                const isActive = activeSection === link.href.replace("#", "");
+                const active = activeSection === link.href.replace("#", "");
                 return (
                   <li key={link.href}>
                     <button
-                      onClick={() => handleNavClick(link.href)}
-                      className={`w-full text-left px-3 py-2.5 text-xs font-mono font-bold uppercase tracking-widest rounded-sm transition-colors ${
-                        isActive
-                          ? "text-[#e10600] bg-[#e10600]/10 border-l-2 border-[#e10600]"
-                          : "text-[#9ca3af] hover:text-white hover:bg-white/5"
+                      onClick={() => scrollTo(link.href)}
+                      className={`w-full text-left px-3 py-2.5 text-xs font-mono font-bold uppercase tracking-widest rounded-lg transition-colors ${
+                        active
+                          ? "text-[#e10600] bg-[#e10600]/10"
+                          : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
                       }`}
                     >
                       {link.label}

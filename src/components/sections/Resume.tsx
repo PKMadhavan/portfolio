@@ -20,39 +20,45 @@ function useIsDesktop(breakpoint = 768) {
 export function Resume() {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduce = useReducedMotion();
   const isDesktop = useIsDesktop();
 
   return (
-    <section
-      id="resume"
-      ref={ref}
-      className="relative py-20"
-      style={{ background: "linear-gradient(180deg, #15151e 0%, #1a1a28 50%, #15151e 100%)" }}
-    >
-      <div className="absolute top-0 left-0 right-0 stripe-bar opacity-40" />
+    <section id="resume" ref={ref} className="relative py-28 overflow-hidden">
+      <div
+        aria-hidden
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{ background: "linear-gradient(to right, transparent, rgba(255,128,0,0.3), transparent)" }}
+      />
+      {/* Ambient glow */}
+      <div
+        aria-hidden
+        className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-5 pointer-events-none"
+        style={{ background: "radial-gradient(circle, #ff8000, transparent 70%)", filter: "blur(80px)" }}
+      />
 
-      <div className="max-w-[1280px] mx-auto px-6">
+      <div className="max-w-[1280px] mx-auto px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="mb-10"
+          className="mb-14"
         >
           <div className="section-label">04. resume</div>
-          <h2 className="font-heading text-4xl md:text-5xl text-white">Resume</h2>
+          <h2 className="font-heading text-5xl md:text-6xl text-foreground">Resume</h2>
         </motion.div>
 
         <motion.div
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
+          initial={shouldReduce ? { opacity: 0 } : { opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.15 }}
+          transition={{ duration: 0.55, delay: 0.15 }}
         >
           <div className="flex flex-wrap gap-3 mb-8">
             <a
               href={SITE_CONFIG.resumeUrl}
               download
-              className="btn-f1 inline-flex items-center gap-2 px-6 py-3 rounded-sm font-mono text-sm font-bold uppercase tracking-widest"
+              data-magnetic
+              className="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-lg font-mono text-sm font-bold uppercase tracking-widest"
             >
               <Download size={15} />
               Download PDF
@@ -61,7 +67,8 @@ export function Resume() {
               href={SITE_CONFIG.resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-sm border border-white/20 bg-transparent text-white font-mono text-sm font-bold uppercase tracking-widest hover:bg-white/10 hover:border-white/40 transition-colors"
+              data-magnetic
+              className="glass inline-flex items-center gap-2 px-6 py-3 rounded-lg font-mono text-sm font-bold uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors"
             >
               <ExternalLink size={15} />
               Open in New Tab
@@ -69,26 +76,25 @@ export function Resume() {
           </div>
 
           {isDesktop ? (
-            <div
-              className="rounded-lg overflow-hidden shadow-2xl shadow-black/60"
-              style={{ border: "1px solid rgba(225,6,0,0.2)" }}
-            >
-              {/* Red top stripe on iframe container */}
-              <div className="stripe-bar" />
+            <div className="glass rounded-2xl overflow-hidden">
+              <div
+                className="h-[3px]"
+                style={{ background: "linear-gradient(to right, #e10600, #ff8000, #ffcc00)" }}
+              />
               <iframe
                 src={`${SITE_CONFIG.resumeUrl}#toolbar=0&navpanes=0`}
                 title="Resume PDF"
-                className="w-full bg-[#1f1f2e]"
+                className="w-full"
                 style={{ height: "80vh", minHeight: 600 }}
               />
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-4 py-16 rounded-lg border border-dashed border-white/20 bg-[#1f1f2e]/50 text-center">
-              <p className="text-[#9ca3af] text-sm font-mono">PDF preview available on desktop.</p>
+            <div className="glass flex flex-col items-center justify-center gap-4 py-16 rounded-2xl text-center">
+              <p className="text-foreground/45 text-sm font-mono">PDF preview available on desktop.</p>
               <a
                 href={SITE_CONFIG.resumeUrl}
                 download
-                className="btn-f1 inline-flex items-center gap-2 px-6 py-3 rounded-sm font-mono text-sm font-bold uppercase tracking-widest"
+                className="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-lg font-mono text-sm font-bold uppercase tracking-widest"
               >
                 <Download size={15} />
                 Download Resume
