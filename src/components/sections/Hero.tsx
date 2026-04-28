@@ -85,7 +85,7 @@ export function Hero() {
           className="font-heading text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] leading-none tracking-tight mb-4"
         >
           {SITE_CONFIG.name.split(" ")[0]}{" "}
-          <span className="gradient-text">{SITE_CONFIG.name.split(" ")[1]}</span>
+          <span className="gradient-text">{SITE_CONFIG.name.split(" ").slice(1).join(" ")}</span>
         </motion.h1>
 
         {/* Typewriter role */}

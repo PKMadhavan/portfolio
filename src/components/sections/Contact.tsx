@@ -174,7 +174,7 @@ export function Contact() {
             {" · "}
             <span className="text-[#00d4aa] font-bold">Framer Motion</span>
           </span>
-          <span>© {new Date().getFullYear()} <span className="text-foreground/60">Madhavan PK</span></span>
+          <span>© {new Date().getFullYear()} <span className="text-foreground/60">Madhavan Panneerselvam Kumar</span></span>
         </div>
       </div>
     </section>

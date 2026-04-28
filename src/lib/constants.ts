@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-  name: "Madhavan PK",
+  name: "Madhavan Panneerselvam Kumar",
   role: "AI Engineer & Full-Stack Developer",
   bio: "I build intelligent systems and beautiful interfaces. Passionate about machine learning, RAG pipelines, and shipping production-ready software. Currently open to full-time roles.",
   email: "madhavanpk9802@gmail.com",

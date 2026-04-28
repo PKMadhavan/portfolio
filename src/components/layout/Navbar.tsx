@@ -42,7 +42,7 @@ export function Navbar() {
           onClick={() => scrollTo("#hero")}
           className="font-heading text-xl text-foreground hover:text-[#e10600] transition-colors duration-300"
         >
-          {SITE_CONFIG.name.split(" ")[0]}
+          {SITE_CONFIG.name}
           <span className="text-[#e10600]">.</span>
         </button>
 
